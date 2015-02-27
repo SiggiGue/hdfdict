@@ -8,7 +8,7 @@ def _check_hdf_file(hdf):
     return hdf
 
 
-def load_dict(hdf):
+def load(hdf):
     """Returns a dictionary containing the datasets from given hdf file."""
     hdf = _check_hdf_file(hdf)
     d = {}
@@ -25,7 +25,7 @@ def load_dict(hdf):
     return _recurse(hdf, d)
 
 
-def dump_dict(d, hdf):
+def dump(d, hdf):
     """Returns a dictionary containing the datasets from given hdf file."""
     hdf = _check_hdf_file(hdf)
 
