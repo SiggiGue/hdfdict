@@ -3,14 +3,15 @@
 from setuptools import setup, find_packages
 
 setup(name='hdfdict',
-      version='0.1alpha',
-      description='Save dictionaries in HDF-Files.',
+      version='0.1.1alpha',
+      description=''.join(('Helps h5py to load and dump dictionaries ',
+                           'containg types supported by h5py.')),
       author='Siegfried Guendert',
       author_email='siegfried.guendert@googlemail.com',
       license='MIT',
-      keywords='scientific serialize data exchange',
+      keywords='scientific serialize dictionaries h5py hdf exchange',
       packages=find_packages(exclude=('docs', '.git')),
-      install_requires=['h5py'],
+      install_requires=['h5py', 'numpy'],
       classifiers=[
           'Development Status :: 3 - Alpha',
           'Intended Audience :: Science/Research',
