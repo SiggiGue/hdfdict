@@ -11,7 +11,6 @@ setup(name='hdfdict',
       license='MIT',
       keywords='scientific serialize dictionaries h5py hdf exchange',
       packages=find_packages(exclude=('docs', '.git')),
-      install_requires=['h5py', 'numpy'],
       classifiers=[
           'Development Status :: 3 - Alpha',
           'Intended Audience :: Science/Research',

@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 import h5py
+import datetime
+from numpy import array
+
+TYPEID = '__type__'
 
 
 def _check_hdf_file(hdf):
@@ -33,7 +37,14 @@ def load(hdf):
                 d[k] = {}
                 d[k] = _recurse(v, d[k])
             elif isinstance(v, h5py.Dataset):
-                d[k] = v.value
+                value = v.value
+                if TYPEID in v.attrs:
+                    if v.attrs[TYPEID][0].astype(str) == 'datetime':
+                        if hasattr(value, '__iter__'):
+                            value = [datetime.datetime.fromtimestamp(ts) for ts in value]
+                        else:
+                            value = datetime.datetime.fromtimestamp(value)
+                d[k] = value
         return d
 
     return _recurse(hdf, d)
@@ -59,11 +70,22 @@ def dump(d, hdf):
 
     def _recurse(d, h):
         for k, v in d.items():
+            isdt = None
             if isinstance(v, dict):
                 g = h.create_group(k)
                 _recurse(v, g)
-            else:
-                h.create_dataset(name=k, data=v)
+            if isinstance(v, datetime.datetime):
+                v = v.timestamp()
+                isdt = True
+            if hasattr(v, '__iter__') and isinstance(v[0], datetime.datetime):
+                v = [item.timestamp() for item in v]
+                isdt = True
+
+            ds = h.create_dataset(name=k, data=v)
+            if isdt:
+                ds.attrs.create(
+                    name=TYPEID,
+                    data=array(["datetime"]).astype('S'))
 
     _recurse(d, hdf)
     return hdf

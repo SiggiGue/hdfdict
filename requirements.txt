@@ -1,0 +1,3 @@
+pytest
+
+# h5py and numpy should be installed before

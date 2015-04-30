@@ -1,0 +1,48 @@
+import os
+import numpy as np
+import h5py
+import hdfdict
+import datetime
+
+
+d = {'a': np.random.randn(10),
+     'b': [1, 2, 3],
+     'c': 'Hallo',
+     'd': np.array(['a', 'b']).astype('S')}
+fname = 'test_hdfdict.h5'
+
+
+def test_dict_to_hdf():
+    if os.path.isfile(fname):
+        os.unlink(fname)
+    hf = h5py.File(fname)
+    hdfdict.dump(d, hf)
+    hf = h5py.File(fname)
+    res = hdfdict.load(hf)
+    assert np.all(d['a'] == res['a'])
+    assert np.all(d['b'] == res['b'])
+    assert np.all(d['c'] == res['c'])
+    assert d.keys() == res.keys()
+
+
+def test_dict_to_hdf_with_datetime():
+    d = {'e': [datetime.datetime.now() for i in range(5)],
+         'f': datetime.datetime.utcnow()}
+    fname = 'test_hdfdict.h5'
+    if os.path.isfile(fname):
+        os.unlink(fname)
+    hf = h5py.File(fname)
+    hdfdict.dump(d, hf)
+    res = hdfdict.load(hf)
+    assert all([a == b for (a, b) in zip(d['e'], res['e'])])
+    assert d['f'] == res['f']
+    assert d.keys() == res.keys()
+
+if os.path.isfile(fname):
+        os.unlink(fname)
+
+
+if __name__ == '__main__':
+    import pytest
+
+    pytest.main()

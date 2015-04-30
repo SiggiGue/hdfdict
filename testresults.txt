@@ -1,0 +1,43 @@
+
+
+============================== Run Tests =====================================
+Date:
+30.04.2015 
+Time:
+13:36
+
+Activating environment "testingenv"...
+
+Uninstall the package if necessary:
+
+Install the package:
+Processing d:\development\hdfdict
+Installing collected packages: hdfdict
+  Running setup.py install for hdfdict
+Successfully installed hdfdict-0.1.1a0
+Collecting pytest (from -r requirements.txt (line 1))
+  Using cached pytest-2.7.0.tar.gz
+Requirement already satisfied (use --upgrade to upgrade): py>=1.4.25 in c:\miniconda3\envs\testingenv\lib\site-packages (from pytest->-r requirements.txt (line 1))
+Requirement already satisfied (use --upgrade to upgrade): colorama in c:\miniconda3\envs\testingenv\lib\site-packages (from pytest->-r requirements.txt (line 1))
+Installing collected packages: pytest
+  Running setup.py install for pytest
+Successfully installed pytest-2.7.0
+
+============================= test session starts =============================
+platform win32 -- Python 3.4.3 -- py-1.4.26 -- pytest-2.7.0 -- C:\Miniconda3\envs\testingenv\python.exe
+rootdir: D:\development\hdfdict, inifile: 
+collecting ... collected 2 items
+
+test_hdfdict.py::test_dict_to_hdf PASSED
+test_hdfdict.py::test_dict_to_hdf_with_datetime PASSED
+
+========================== 2 passed in 0.41 seconds ===========================
+
+Uninstalling hdfdict-0.1.1a0:
+  Successfully uninstalled hdfdict-0.1.1a0
+Uninstalling pytest-2.7.0:
+  Successfully uninstalled pytest-2.7.0
+
+Deactivating environment "testingenv"...
+
+======== Finished Tests: Please check the test session results above =========
