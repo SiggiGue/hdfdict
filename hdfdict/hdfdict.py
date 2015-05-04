@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import h5py
-import datetime
+import json
+from datetime import datetime
 from numpy import array
 
 TYPEID = '__type__'
@@ -39,11 +40,17 @@ def load(hdf):
             elif isinstance(v, h5py.Dataset):
                 value = v.value
                 if TYPEID in v.attrs:
+
                     if v.attrs[TYPEID][0].astype(str) == 'datetime':
                         if hasattr(value, '__iter__'):
-                            value = [datetime.datetime.fromtimestamp(ts) for ts in value]
+                            value = [datetime.fromtimestamp(
+                                ts) for ts in value]
                         else:
-                            value = datetime.datetime.fromtimestamp(value)
+                            value = datetime.fromtimestamp(value)
+
+                    if v.attrs[TYPEID][0].astype(str) == 'json':
+                        value = json.loads(value)
+
                 d[k] = value
         return d
 
@@ -74,18 +81,27 @@ def dump(d, hdf):
             if isinstance(v, dict):
                 g = h.create_group(k)
                 _recurse(v, g)
-            if isinstance(v, datetime.datetime):
+            if isinstance(v, datetime):
                 v = v.timestamp()
                 isdt = True
-            if hasattr(v, '__iter__') and isinstance(v[0], datetime.datetime):
+            if (hasattr(v, '__iter__') and all(
+                    isinstance(i, datetime) for i in v)):
                 v = [item.timestamp() for item in v]
                 isdt = True
-
-            ds = h.create_dataset(name=k, data=v)
-            if isdt:
+            try:
+                ds = h.create_dataset(name=k, data=v)
+                if isdt:
+                    ds.attrs.create(
+                        name=TYPEID,
+                        data=array(["datetime"]).astype('S'))
+            except TypeError:
+                # Obviously the data was not serializable. To giv it
+                # a last try; serialize it to json and save it to the hdf file:
+                ds = h.create_dataset(name=k, data=json.dumps(v))
                 ds.attrs.create(
                     name=TYPEID,
-                    data=array(["datetime"]).astype('S'))
+                    data=array(['json']).astype('S'))
+                # if this fails again, restructure your data!
 
     _recurse(d, hdf)
     return hdf

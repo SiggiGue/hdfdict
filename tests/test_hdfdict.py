@@ -27,19 +27,28 @@ def test_dict_to_hdf():
 
 def test_dict_to_hdf_with_datetime():
     d = {'e': [datetime.datetime.now() for i in range(5)],
-         'f': datetime.datetime.utcnow()}
+         'f': datetime.datetime.utcnow(),
+         'g': [('Hello', 5), (6, 'No HDF but json')]}
     fname = 'test_hdfdict.h5'
     if os.path.isfile(fname):
         os.unlink(fname)
     hf = h5py.File(fname)
     hdfdict.dump(d, hf)
     res = hdfdict.load(hf)
-    assert all([a == b for (a, b) in zip(d['e'], res['e'])])
-    assert d['f'] == res['f']
+
+    def equaldt(a, b):
+        d = a - b
+        return d.total_seconds() < 1e-6
+
+    assert all([equaldt(a, b) for (a, b) in zip(d['e'], res['e'])])
+    assert equaldt(d['f'], res['f'])
+    assert d['g'][0][0] == 'Hello'
+    assert d['g'][1][0] == 6
     assert d.keys() == res.keys()
+    hf.close()
 
 if os.path.isfile(fname):
-        os.unlink(fname)
+    os.unlink(fname)
 
 
 if __name__ == '__main__':
