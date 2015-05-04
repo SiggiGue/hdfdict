@@ -23,6 +23,7 @@ def test_dict_to_hdf():
     assert np.all(d['b'] == res['b'])
     assert np.all(d['c'] == res['c'])
     assert d.keys() == res.keys()
+    hf.close()
 
 
 def test_dict_to_hdf_with_datetime():
@@ -38,7 +39,7 @@ def test_dict_to_hdf_with_datetime():
 
     def equaldt(a, b):
         d = a - b
-        return d.total_seconds() < 1e-6
+        return d.total_seconds() < 1e-3
 
     assert all([equaldt(a, b) for (a, b) in zip(d['e'], res['e'])])
     assert equaldt(d['f'], res['f'])

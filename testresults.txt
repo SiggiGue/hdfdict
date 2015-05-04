@@ -2,9 +2,9 @@
 
 ============================== Run Tests =====================================
 Date:
-30.04.2015 
+04.05.2015 
 Time:
-13:36
+17:07
 
 Activating environment "testingenv"...
 
@@ -31,7 +31,7 @@ collecting ... collected 2 items
 test_hdfdict.py::test_dict_to_hdf PASSED
 test_hdfdict.py::test_dict_to_hdf_with_datetime PASSED
 
-========================== 2 passed in 0.41 seconds ===========================
+========================== 2 passed in 0.45 seconds ===========================
 
 Uninstalling hdfdict-0.1.1a0:
   Successfully uninstalled hdfdict-0.1.1a0
