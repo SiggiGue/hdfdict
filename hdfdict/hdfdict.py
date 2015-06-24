@@ -3,15 +3,23 @@ import h5py
 import json
 from datetime import datetime
 from numpy import array
+from contextlib import contextmanager
 
 TYPEID = '__type__'
 
 
-def _check_hdf_file(hdf):
-    """Returns h5py File if hdf is string (needs to be a path)."""
+@contextmanager
+def hdf_file(hdf):
+    """Loads h5 file and closes if hdf is str,
+    otherwise just uses uses hdf as fid """
     if isinstance(hdf, str):
         hdf = h5py.File(hdf)
-    return hdf
+        do_close = True
+    else:
+        do_close = False
+    yield hdf
+    if do_close:
+        hdf.close()
 
 
 def load(hdf):
@@ -29,7 +37,6 @@ def load(hdf):
         The dictionary containing all groupnames as keys and
         datasets as values.
     """
-    hdf = _check_hdf_file(hdf)
     d = {}
 
     def _recurse(h, d):
@@ -54,7 +61,8 @@ def load(hdf):
                 d[k] = value
         return d
 
-    return _recurse(hdf, d)
+    with hdf_file(hdf) as hdf:
+        return _recurse(hdf, d)
 
 
 def dump(d, hdf):
@@ -73,7 +81,6 @@ def dump(d, hdf):
     hdf : obj
         `h5py.Group()` or `h5py.File()` instance
     """
-    hdf = _check_hdf_file(hdf)
 
     def _recurse(d, h):
         for k, v in d.items():
@@ -103,5 +110,6 @@ def dump(d, hdf):
                     data=array(['json']).astype('S'))
                 # if this fails again, restructure your data!
 
-    _recurse(d, hdf)
-    return hdf
+    with hdf_file(hdf) as hdf:
+        _recurse(d, hdf)
+        return hdf
