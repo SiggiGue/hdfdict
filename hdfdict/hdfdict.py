@@ -10,16 +10,14 @@ TYPEID = '__type__'
 
 @contextmanager
 def hdf_file(hdf):
-    """Loads h5 file and closes if hdf is str,
-    otherwise just uses uses hdf as fid """
+    """Context manager yields h5 file and closes if hdf is str,
+    otherwise just yield hdf as is."""
     if isinstance(hdf, str):
         hdf = h5py.File(hdf)
-        do_close = True
-    else:
-        do_close = False
-    yield hdf
-    if do_close:
+        yield hdf
         hdf.close()
+    else:
+        yield hdf
 
 
 def load(hdf):
