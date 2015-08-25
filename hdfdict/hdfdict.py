@@ -2,7 +2,7 @@
 import h5py
 import json
 from datetime import datetime
-from numpy import array
+from numpy import array, string_
 
 TYPEID = '__type__'
 
@@ -47,9 +47,13 @@ def load(hdf):
                                 ts) for ts in value]
                         else:
                             value = datetime.fromtimestamp(value)
-
+                    if v.attrs[TYPEID][0].astype(str) == 'string':
+                        if not isinstance(value, bytes):
+                            value = [ts.decode() for ts in value]
+                        else:
+                            value = value.decode()
                     if v.attrs[TYPEID][0].astype(str) == 'json':
-                        value = json.loads(value)
+                        value = json.loads(value.decode())
 
                 d[k] = value
         return d
@@ -78,26 +82,38 @@ def dump(d, hdf):
     def _recurse(d, h):
         for k, v in d.items():
             isdt = None
+            isstr = None
             if isinstance(v, dict):
                 g = h.create_group(k)
-                _recurse(v, g)
+                return _recurse(v, g)
             if isinstance(v, datetime):
                 v = v.timestamp()
                 isdt = True
-            if (hasattr(v, '__iter__') and all(
-                    isinstance(i, datetime) for i in v)):
-                v = [item.timestamp() for item in v]
-                isdt = True
+            if isinstance(v, str):
+                v = string_(v)
+                isstr = True
+            if hasattr(v, '__iter__'):
+                if all(isinstance(i, datetime) for i in v):
+                    print(all(isinstance(i, datetime) for i in v))
+                    v = [item.timestamp() for item in v]
+                    isdt = True
+                if all(isinstance(i, str) for i in v):
+                    v = [string_(item) for item in v]
+                    isstr = True
             try:
                 ds = h.create_dataset(name=k, data=v)
                 if isdt:
                     ds.attrs.create(
                         name=TYPEID,
                         data=array(["datetime"]).astype('S'))
+                if isstr:
+                    ds.attrs.create(
+                        name=TYPEID,
+                        data=array(["string"]).astype('S'))
             except TypeError:
-                # Obviously the data was not serializable. To giv it
+                # Obviously the data was not serializable. To give it
                 # a last try; serialize it to json and save it to the hdf file:
-                ds = h.create_dataset(name=k, data=json.dumps(v))
+                ds = h.create_dataset(name=k, data=string_(json.dumps(v)))
                 ds.attrs.create(
                     name=TYPEID,
                     data=array(['json']).astype('S'))
