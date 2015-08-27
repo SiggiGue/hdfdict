@@ -33,5 +33,5 @@ print(res)
 """
 
 from .hdfdict import load, dump
-__version__ = '0.1.1alpha'
+__version__ = '0.1.2alpha'
 __all__ = ['load', 'dump']

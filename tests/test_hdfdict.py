@@ -5,18 +5,21 @@ import hdfdict
 import datetime
 
 
-d = {'a': np.random.randn(10),
-     'b': [1, 2, 3],
-     'c': 'Hallo',
-     'd': np.array(['a', 'b']).astype('S')}
+d = {
+    'a': np.random.randn(10),
+    'b': [1, 2, 3],
+    'c': 'Hallo',
+    'd': np.array(['a', 'b']).astype('S'),
+    'e': True,
+    'f': (True, False),
+}
 fname = 'test_hdfdict.h5'
 
 
 def test_dict_to_hdf():
     if os.path.isfile(fname):
         os.unlink(fname)
-    hf = h5py.File(fname)
-    hdfdict.dump(d, hf)
+    hdfdict.dump(d, fname)
     hf = h5py.File(fname)
     res = hdfdict.load(hf)
     assert np.all(d['a'] == res['a'])
@@ -27,9 +30,11 @@ def test_dict_to_hdf():
 
 
 def test_dict_to_hdf_with_datetime():
-    d = {'e': [datetime.datetime.now() for i in range(5)],
-         'f': datetime.datetime.utcnow(),
-         'g': [('Hello', 5), (6, 'No HDF but json')]}
+    d = {
+        'e': [datetime.datetime.now() for i in range(5)],
+        'f': datetime.datetime.utcnow(),
+        'g': [('Hello', 5), (6, 'No HDF but json'), {'foo': True}]
+    }
     fname = 'test_hdfdict.h5'
     if os.path.isfile(fname):
         os.unlink(fname)
@@ -48,11 +53,13 @@ def test_dict_to_hdf_with_datetime():
     assert d.keys() == res.keys()
     hf.close()
 
-if os.path.isfile(fname):
-    os.unlink(fname)
+    if os.path.isfile(fname):
+        os.unlink(fname)
 
 
 if __name__ == '__main__':
     import pytest
 
     pytest.main()
+    if os.path.isfile(fname):
+        os.unlink(fname)
