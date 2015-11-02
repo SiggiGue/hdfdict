@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import h5py
-import json
+import yaml
 from datetime import datetime
 from numpy import string_
 from contextlib import contextmanager
@@ -10,18 +10,18 @@ TYPEID = '__type__'
 
 
 @contextmanager
-def hdf_file(hdf):
+def hdf_file(hdf, **kwargs):
     """Context manager yields h5 file and closes if hdf is str,
     otherwise just yield hdf as is."""
     if isinstance(hdf, str):
-        hdf = h5py.File(hdf)
+        hdf = h5py.File(hdf, **kwargs)
         yield hdf
         hdf.close()
     else:
         yield hdf
 
 
-def load(hdf):
+def load(hdf, **kwargs):
     """Returns a dictionary containing the
     groups as keys and the datasets as values
     from given hdf file.
@@ -52,18 +52,18 @@ def load(hdf):
                         else:
                             value = datetime.fromtimestamp(value)
 
-                    if v.attrs[TYPEID].astype(str) == 'json':
-                        value = json.loads(value.decode())
+                    if v.attrs[TYPEID].astype(str) == 'yaml':
+                        value = yaml.safe_load(value.decode())
 
                 d[k] = value
         return d
 
-    with hdf_file(hdf) as hdf:
+    with hdf_file(hdf, **kwargs) as hdf:
         d = {}
         return _recurse(hdf, d)
 
 
-def dump(d, hdf):
+def dump(d, hdf, **kwargs):
     """Adds keys of given dict as groups and values as datasets
     to the given hdf-file (by string or object) or group object.
 
@@ -105,14 +105,17 @@ def dump(d, hdf):
                             data=string_("datetime"))
                 except TypeError:
                     # Obviously the data was not serializable. To give it
-                    # a last try; serialize it to json
+                    # a last try; serialize it to yaml
                     # and save it to the hdf file:
-                    ds = h.create_dataset(name=k, data=string_(json.dumps(v)))
+                    ds = h.create_dataset(
+                        name=k,
+                        data=string_(yaml.safe_dump(v))
+                    )
                     ds.attrs.create(
                         name=TYPEID,
-                        data=string_("json"))
+                        data=string_("yaml"))
                     # if this fails again, restructure your data!
 
-    with hdf_file(hdf) as hdf:
+    with hdf_file(hdf, **kwargs) as hdf:
         _recurse(d, hdf)
         return hdf
