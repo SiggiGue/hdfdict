@@ -93,7 +93,6 @@ def dump(d, hdf, **kwargs):
 
                 if hasattr(v, '__iter__'):
                     if all(isinstance(i, datetime) for i in v):
-                        print(all(isinstance(i, datetime) for i in v))
                         v = [item.timestamp() for item in v]
                         isdt = True
 
