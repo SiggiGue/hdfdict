@@ -10,18 +10,18 @@ TYPEID = '__type__'
 
 
 @contextmanager
-def hdf_file(hdf, **kwargs):
+def hdf_file(hdf, *args, **kwargs):
     """Context manager yields h5 file and closes if hdf is str,
     otherwise just yield hdf as is."""
     if isinstance(hdf, str):
-        hdf = h5py.File(hdf, **kwargs)
+        hdf = h5py.File(hdf, *args, **kwargs)
         yield hdf
         hdf.close()
     else:
         yield hdf
 
 
-def load(hdf, **kwargs):
+def load(hdf, *args, **kwargs):
     """Returns a dictionary containing the
     groups as keys and the datasets as values
     from given hdf file.
@@ -58,12 +58,12 @@ def load(hdf, **kwargs):
                 d[k] = value
         return d
 
-    with hdf_file(hdf, **kwargs) as hdf:
+    with hdf_file(hdf, *args, **kwargs) as hdf:
         d = {}
         return _recurse(hdf, d)
 
 
-def dump(d, hdf, **kwargs):
+def dump(d, hdf, *args, **kwargs):
     """Adds keys of given dict as groups and values as datasets
     to the given hdf-file (by string or object) or group object.
 
@@ -115,6 +115,6 @@ def dump(d, hdf, **kwargs):
                         data=string_("yaml"))
                     # if this fails again, restructure your data!
 
-    with hdf_file(hdf, **kwargs) as hdf:
+    with hdf_file(hdf, *args, **kwargs) as hdf:
         _recurse(d, hdf)
         return hdf
