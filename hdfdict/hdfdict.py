@@ -14,9 +14,8 @@ def hdf_file(hdf, *args, **kwargs):
     """Context manager yields h5 file and closes if hdf is str,
     otherwise just yield hdf as is."""
     if isinstance(hdf, str):
-        hdf = h5py.File(hdf, *args, **kwargs)
-        yield hdf
-        hdf.close()
+        with h5py.File(hdf, *args, **kwargs) as hdf:
+            yield hdf
     else:
         yield hdf
 
