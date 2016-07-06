@@ -33,5 +33,8 @@ print(res)
 """
 
 from .hdfdict import load, dump
-__version__ = '0.1.2alpha'
+import pkg_resources as __pkg_resources
+
+__version__ = __pkg_resources.require('hdfdict')[0].version
+
 __all__ = ['load', 'dump']
