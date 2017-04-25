@@ -82,6 +82,8 @@ def dump(d, hdf, *args, **kwargs):
     def _recurse(d, h):
         for k, v in d.items():
             isdt = None
+            if isinstance(k, tuple):
+                k = '_'.join((str(i) for i in k))
             if isinstance(v, dict):
                 g = h.create_group(k)
                 _recurse(v, g)
