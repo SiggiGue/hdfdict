@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 setup(name='hdfdict',
-      version='0.1.2alpha',
+      version='0.1.3',
       description=''.join(('Helps h5py to load and dump dictionaries ',
                            'containg types supported by h5py.')),
       author='Siegfried Guendert',
@@ -12,7 +12,6 @@ setup(name='hdfdict',
       keywords='scientific serialize dictionaries h5py hdf exchange',
       packages=find_packages(exclude=('docs', '.git')),
       classifiers=[
-          'Development Status :: 3 - Alpha',
           'Intended Audience :: Science/Research',
           'Intended Audience :: Developers',
           'License :: OSI Approved :: MIT License',
