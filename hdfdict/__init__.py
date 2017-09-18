@@ -34,7 +34,9 @@ print(res)
 
 from .hdfdict import load, dump
 
-import pkg_resources
-__version__ = pkg_resources.require('ionis-rawdata')[0].version
+import pkg_resources as __pkg_res
+
+
+__version__ = __pkg_res.require('hdfdict')[0].version
 
 __all__ = ['load', 'dump']

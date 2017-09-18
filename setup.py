@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 setup(name='hdfdict',
-      version='0.1.3',
+      version='0.2.0',
       description=''.join(('Helps h5py to load and dump dictionaries ',
                            'containg types supported by h5py.')),
       author='Siegfried Guendert',
