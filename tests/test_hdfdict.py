@@ -20,13 +20,12 @@ def test_dict_to_hdf():
     if os.path.isfile(fname):
         os.unlink(fname)
     hdfdict.dump(d, fname)
-    hf = h5py.File(fname)
-    res = hdfdict.load(hf)
-    assert np.all(d['a'] == res['a'])
-    assert np.all(d['b'] == res['b'])
-    assert np.all(d['c'] == res['c'])
-    assert d.keys() == res.keys()
-    hf.close()
+    for lazy in [True, False]:
+        res = hdfdict.load(fname, lazy=lazy)
+        assert np.all(d['a'] == res['a'])
+        assert np.all(d['b'] == res['b'])
+        assert np.all(d['c'] == res['c'])
+        assert tuple(d.keys()) == tuple(res.keys())
 
 
 def test_dict_to_hdf_with_datetime():
