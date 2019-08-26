@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "hdfdict"
-version = "0.3.0"
+version = "0.3.1"
 description = "Helps h5py to load and dump dictionaries containing types supported by h5py."
 authors = ["Siegfried Gündert <siegfried.guendert@googlemail.com>"]
 license = "MIT"
