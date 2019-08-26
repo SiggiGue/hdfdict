@@ -5,6 +5,11 @@ description = "Helps h5py to load and dump dictionaries containing types support
 authors = ["Siegfried Gündert <siegfried.guendert@googlemail.com>"]
 license = "MIT"
 
+readme = 'README.md'
+homepage = 'https://github.com/SiggiGue/hdfdict'
+repository = 'https://github.com/SiggiGue/hdfdict'
+
+
 [tool.poetry.dependencies]
 python = "^3.7"
 h5py-wrapper = "^1.1"
