@@ -7,7 +7,7 @@ from numpy import string_
 from contextlib import contextmanager
 
 
-TYPEID = '__type__'
+TYPEID = '_type_'
 
 
 @contextmanager

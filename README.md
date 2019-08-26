@@ -14,5 +14,6 @@ A lazy loading option is activated per default. So big h5 files are not loaded a
 
 ## Installation
 
-+ `pip install git+git://github.com/SiggiGue/hdfdict.git`
-+ `git clone ...` and `python setup.py install`
++ `pip install hdfdict
++ `poetry install hdfdict
++ `git clone https://github.com/SiggiGue/hdfdict.git` and `python hdfdict/setup.py install`
