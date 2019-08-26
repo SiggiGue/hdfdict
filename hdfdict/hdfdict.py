@@ -37,7 +37,7 @@ def unpack_dataset(item):
     value : Unpacked Data
     
     """
-    value = item.value
+    value = item[()]
     if TYPEID in item.attrs:
         if item.attrs[TYPEID].astype(str) == 'datetime':
             if hasattr(value, '__iter__'):

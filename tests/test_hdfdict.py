@@ -1,3 +1,4 @@
+from pytest import assume
 import os
 import numpy as np
 import h5py
@@ -22,34 +23,40 @@ def test_dict_to_hdf():
     hdfdict.dump(d, fname)
     for lazy in [True, False]:
         res = hdfdict.load(fname, lazy=lazy)
-        assert np.all(d['a'] == res['a'])
-        assert np.all(d['b'] == res['b'])
-        assert np.all(d['c'] == res['c'])
-        assert tuple(d.keys()) == tuple(res.keys())
+        assume(np.all(d['a'] == res['a']))
+        assume(np.all(d['b'] == res['b']))
+        assume(np.all(d['c'] == res['c']))
+        assume(tuple(d.keys()) == tuple(res.keys()))
 
 
 def test_dict_to_hdf_with_datetime():
     d = {
         'e': [datetime.datetime.now() for i in range(5)],
         'f': datetime.datetime.utcnow(),
-        'g': [('Hello', 5), (6, 'No HDF but json'), {'foo': True}]
+        'g': [('Hello', 5), (6, 'No HDF but json'), {'foo': True}],
+        'h': {'test2': datetime.datetime.now(), 
+              'again': ['a', 1], (1, 2): (3, 4)}
     }
     fname = 'test_hdfdict.h5'
     if os.path.isfile(fname):
         os.unlink(fname)
     hf = h5py.File(fname)
     hdfdict.dump(d, hf)
+    res = hdfdict.load(hf, lazy=False)
     res = hdfdict.load(hf)
-
+    res.unlazy()  # all lazy objects will be rolled out.
     def equaldt(a, b):
         d = a - b
         return d.total_seconds() < 1e-3
 
-    assert all([equaldt(a, b) for (a, b) in zip(d['e'], res['e'])])
-    assert equaldt(d['f'], res['f'])
-    assert d['g'][0][0] == 'Hello'
-    assert d['g'][1][0] == 6
-    assert d.keys() == res.keys()
+    assume(all([equaldt(a, b) for (a, b) in zip(d['e'], res['e'])]))
+    assume(equaldt(d['f'], res['f']))
+    assume(d['g'][0][0] == 'Hello')
+    assume(d['g'][1][0] == 6)
+    assume(d.keys() == res.keys())
+    assume(isinstance(res['h']['test2'], datetime.datetime))
+    assume(res['h']['again'][0]=='a')
+    assume(res['h']['again'][1]==1)
     hf.close()
 
     if os.path.isfile(fname):
