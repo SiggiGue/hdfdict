@@ -1,5 +1,7 @@
 # hdfdict helps h5py to dump and load python dictionaries
 
+[![CodeFactor](https://www.codefactor.io/repository/github/siggigue/hdfdict/badge)](https://www.codefactor.io/repository/github/siggigue/hdfdict)
+
 [![Build Status](https://travis-ci.org/SiggiGue/hdfdict.svg?branch=master)](https://travis-ci.org/SiggiGue/hdfdict)
 
 [![Coverage Status](https://coveralls.io/repos/github/SiggiGue/hdfdict/badge.svg?branch=master)](https://coveralls.io/github/SiggiGue/hdfdict?branch=master)
