@@ -1,24 +1,28 @@
 # -*- coding: utf-8 -*-
 import h5py
 import yaml
+from pathlib import Path
 from collections import UserDict
 from datetime import datetime
 from numpy import string_
 from contextlib import contextmanager
 
 
-TYPEID = '_type_'
-
+TYPE = '_type_'
 
 @contextmanager
 def hdf_file(hdf, lazy=True, *args, **kwargs):
-    """Context manager yields h5 file if hdf is str,
-    otherwise just yield hdf as is."""
-    if isinstance(hdf, str):
-        if not lazy:
+    """Context manager that yields an h5 file if `hdf` is a string,
+    otherwise it yields hdf as is."""
+    if isinstance(hdf, (str, Path)):
+        if not lazy:  
+            # The file can be closed after reading
+            # therefore the context manager is used.
             with h5py.File(hdf, *args, **kwargs) as hdf:
                 yield hdf
         else:
+            # The file should stay open because datasets 
+            # are read on item access.
             yield h5py.File(hdf, *args, **kwargs)
     else:
         yield hdf
@@ -34,20 +38,31 @@ def unpack_dataset(item):
 
     Returns
     -------
+    key: Unpacked key
     value : Unpacked Data
     
     """
     value = item[()]
-    if TYPEID in item.attrs:
-        if item.attrs[TYPEID].astype(str) == 'datetime':
-            if hasattr(value, '__iter__'):
-                value = [datetime.fromtimestamp(
-                    ts) for ts in value]
-            else:
-                value = datetime.fromtimestamp(value)
+    type_id = item.attrs.get(TYPE, string_()).astype(str)
+    if type_id == 'datetime':
+        if hasattr(value, '__iter__'):
+            value = [datetime.fromtimestamp(
+                ts) for ts in value]
+        else:
+            value = datetime.fromtimestamp(value)
 
-        if item.attrs[TYPEID].astype(str) == 'yaml':
-            value = yaml.safe_load(value.decode())
+    elif type_id == 'yaml':
+        value = yaml.safe_load(value.decode())
+    
+    elif type_id == 'list':
+        value = list(value)
+
+    elif type_id == 'tuple':
+        value = tuple(value)
+
+    elif type_id == 'str':
+        value = string_(value).astype(str)
+    
     return value
 
 
@@ -90,7 +105,7 @@ class LazyHdfDict(UserDict):
         return tuple(self.keys())
             
 
-def load(hdf, lazy=True, unpacker=unpack_dataset, *args, **kwargs):
+def load(hdf, lazy=True, unpacker=unpack_dataset, mode='r', *args, **kwargs):
     """Returns a dictionary containing the
     groups as keys and the datasets as values
     from given hdf file.
@@ -103,6 +118,8 @@ def load(hdf, lazy=True, unpacker=unpack_dataset, *args, **kwargs):
     upacker : callable
         Unpack function gets `value` of type h5py.Dataset.
         Must return the data you would like to have it in the returned dict.
+    mode : str
+        File read mode. Default: 'r'.
 
     Returns
     -------
@@ -126,7 +143,7 @@ def load(hdf, lazy=True, unpacker=unpack_dataset, *args, **kwargs):
 
         return datadict
 
-    with hdf_file(hdf, lazy=lazy, *args, **kwargs) as hdf:
+    with hdf_file(hdf, lazy=lazy, mode=mode, *args, **kwargs) as hdf:
         if lazy:
             data = LazyHdfDict(_h5file=hdf)
         else:
@@ -136,6 +153,7 @@ def load(hdf, lazy=True, unpacker=unpack_dataset, *args, **kwargs):
 
 def pack_dataset(hdfobject, key, value):
     """Packs a given key value pair into a dataset in the given hdfobject."""
+
     isdt = None
     if isinstance(value, datetime):
         value = value.timestamp()
@@ -148,25 +166,34 @@ def pack_dataset(hdfobject, key, value):
 
     try:
         ds = hdfobject.create_dataset(name=key, data=value)
+        
         if isdt:
-            ds.attrs.create(
-                name=TYPEID,
-                data=string_("datetime"))
-    except TypeError:
+            attr_data = "datetime"
+        elif isinstance(value, list):
+            attr_data = "list"
+        elif isinstance(value, tuple):
+            attr_data = "tuple"
+        elif isinstance(value, str):
+            attr_data = "str"
+        else:   
+            attr_data = None
+
+        if attr_data:
+            ds.attrs.create(name=TYPE, data=string_(attr_data))
+
+    except (TypeError, ValueError):
         # Obviously the data was not serializable. To give it
         # a last try; serialize it to yaml
         # and save it to the hdf file:
         ds = hdfobject.create_dataset(
             name=key,
-            data=string_(yaml.safe_dump(value))
-        )
-        ds.attrs.create(
-            name=TYPEID,
-            data=string_("yaml"))
+            data=string_(yaml.safe_dump(value)))
+
+        ds.attrs.create(name=TYPE, data=string_("yaml"))
         # if this fails again, restructure your data!   
 
 
-def dump(data, hdf, packer=pack_dataset, *args, **kwargs):
+def dump(data, hdf, packer=pack_dataset, mode='w', *args, **kwargs):
     """Adds keys of given dict as groups and values as datasets
     to the given hdf-file (by string or object) or group object.
 
@@ -181,6 +208,8 @@ def dump(data, hdf, packer=pack_dataset, *args, **kwargs):
         `hdfobject` is considered to be either a h5py.File or a h5py.Group.
         `key` is the name of the dataset.
         `value` is the dataset to be packed and accepted by h5py.
+    mode : str
+        File write mode. Default: 'w'
 
     Returns
     -------
@@ -191,14 +220,12 @@ def dump(data, hdf, packer=pack_dataset, *args, **kwargs):
 
     def _recurse(datadict, hdfobject):
         for key, value in datadict.items():
-            if isinstance(key, tuple):
-                key = '_'.join((str(i) for i in key))
             if isinstance(value, (dict, LazyHdfDict)):
                 hdfgroup = hdfobject.create_group(key)
                 _recurse(value, hdfgroup)
             else:
                 packer(hdfobject, key, value)
 
-    with hdf_file(hdf, *args, **kwargs) as hdf:
+    with hdf_file(hdf, mode=mode, *args, **kwargs) as hdf:
         _recurse(data, hdf)
         return hdf
