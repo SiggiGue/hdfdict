@@ -44,7 +44,7 @@ If you only want to load specific fields, just use item access e.g. `res['a']` s
 
 
 ```python
-print(dict(res))`
+print(dict(res))
 ```
 
 Output:
@@ -58,7 +58,4 @@ Output:
 
 
 ## Installation
-
-+ `pip install hdfdict`
-+ `poetry install hdfdict`
-+ `git clone https://github.com/SiggiGue/hdfdict.git` and `python hdfdict/setup.py install`
++ `pip install git+https://github.com/SiggiGue/hdfdict.git`
