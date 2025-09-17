@@ -4,7 +4,7 @@ import yaml
 from pathlib import Path
 from collections import UserDict
 from datetime import datetime
-from numpy import string_
+from numpy import bytes_
 from contextlib import contextmanager
 
 
@@ -43,7 +43,7 @@ def unpack_dataset(item):
     
     """
     value = item[()]
-    type_id = item.attrs.get(TYPE, string_()).astype(str)
+    type_id = item.attrs.get(TYPE, bytes_()).astype(str)
     if type_id == 'datetime':
         if hasattr(value, '__iter__'):
             value = [datetime.fromtimestamp(
@@ -61,7 +61,7 @@ def unpack_dataset(item):
         value = tuple(value)
 
     elif type_id == 'str':
-        value = string_(value).astype(str)
+        value = bytes_(value).astype(str)
     
     return value
 
@@ -179,7 +179,7 @@ def pack_dataset(hdfobject, key, value):
             attr_data = None
 
         if attr_data:
-            ds.attrs.create(name=TYPE, data=string_(attr_data))
+            ds.attrs.create(name=TYPE, data=bytes_(attr_data))
 
     except (TypeError, ValueError):
         # Obviously the data was not serializable. To give it
@@ -187,9 +187,9 @@ def pack_dataset(hdfobject, key, value):
         # and save it to the hdf file:
         ds = hdfobject.create_dataset(
             name=key,
-            data=string_(yaml.safe_dump(value)))
+            data=bytes_(yaml.safe_dump(value)))
 
-        ds.attrs.create(name=TYPE, data=string_("yaml"))
+        ds.attrs.create(name=TYPE, data=bytes_("yaml"))
         # if this fails again, restructure your data!   
 
 
