@@ -36,7 +36,7 @@ def test_dict_to_hdf():
 def test_dict_to_hdf_with_datetime():
     d = {
         'e': [datetime.datetime.now() for i in range(5)],
-        'f': datetime.datetime.now(datetime.UTC),
+        'f': datetime.datetime.now(datetime.timezone.utc),
         'g': [('Hello', 5), (6, 'No HDF but json'), {'foo': True}],
         'h': {'test2': datetime.datetime.now(), 
               'again': ['a', 1], 
