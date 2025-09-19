@@ -10,6 +10,9 @@ The dictionary-keys need to be strings.
 
 A lazy loading option is activated per default. So big h5 files are not loaded at once. Instead, a dataset gets only loaded if it is accessed from the LazyHdfDict instance.
 
+Datetimes are serialized as isoformat from version 0.5.0 on. You won't notice that directly on the python side but e.g. timezone aware datetimes would be also loaded as timezone aware again.
+
+You should be aware of the fact, that load will not return exactly the same types as you put them into the dump function. Many types are loaded by h5py as numpy types and will not be changed by hdfdict to the original type.
 
 ## Example
 
