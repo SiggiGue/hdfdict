@@ -36,7 +36,7 @@ def test_dict_to_hdf():
 def test_dict_to_hdf_with_datetime():
     d = {
         'e': [datetime.datetime.now() for i in range(5)],
-        'f': datetime.datetime.utcnow(),
+        'f': datetime.datetime.now(datetime.UTC),
         'g': [('Hello', 5), (6, 'No HDF but json'), {'foo': True}],
         'h': {'test2': datetime.datetime.now(), 
               'again': ['a', 1], 
@@ -50,7 +50,7 @@ def test_dict_to_hdf_with_datetime():
         res = hdfdict.load(hf, lazy=False)
 
         def equaldt(a, b):
-            d = a - b
+            d = a.astimezone() - b.astimezone()
             return d.total_seconds() == 0.0
 
         assume(all([equaldt(a, b) for (a, b) in zip(d['e'], res['e'])]))

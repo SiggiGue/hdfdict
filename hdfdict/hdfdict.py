@@ -50,6 +50,12 @@ def unpack_dataset(item):
                 ts) for ts in value]
         else:
             value = datetime.fromtimestamp(value)
+    elif type_id == 'datetimeisofmt':
+        if hasattr(value, '__iter__') and not isinstance(value, bytes):
+            value = [datetime.fromisoformat(
+                ts.decode()) for ts in value]
+        else:
+            value = datetime.fromisoformat(value.decode())
 
     elif type_id == 'yaml':
         value = yaml.safe_load(value.decode())
@@ -156,19 +162,19 @@ def pack_dataset(hdfobject, key, value):
 
     isdt = None
     if isinstance(value, datetime):
-        value = value.timestamp()
+        value = value.isoformat()
         isdt = True
 
     if hasattr(value, '__iter__'):
         if all(isinstance(i, datetime) for i in value):
-            value = [item.timestamp() for item in value]
+            value = [item.isoformat() for item in value]
             isdt = True
 
     try:
         ds = hdfobject.create_dataset(name=key, data=value)
         
         if isdt:
-            attr_data = "datetime"
+            attr_data = "datetimeisofmt"
         elif isinstance(value, list):
             attr_data = "list"
         elif isinstance(value, tuple):

@@ -33,8 +33,6 @@ print(res)
 """
 
 from .hdfdict import load, dump
-import pkg_resources as __pkg_resources
-
-__version__ = __pkg_resources.require('hdfdict')[0].version
-
+import importlib.metadata as _imd
+__version__ = _imd.version('hdfdict')
 __all__ = ['load', 'dump']

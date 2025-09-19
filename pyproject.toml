@@ -1,26 +1,28 @@
-[tool.poetry]
-name = "hdfdict"
-version = "0.4.1"
-description = "Helps h5py to load and dump dictionaries containing types supported by h5py."
-authors = ["Siegfried Gündert <siegfried.guendert@googlemail.com>"]
-license = "MIT"
-
-readme = 'README.md'
-homepage = 'https://github.com/SiggiGue/hdfdict'
-repository = 'https://github.com/SiggiGue/hdfdict'
-
-
-[tool.poetry.dependencies]
-python = "^3.8"
-h5py-wrapper = "^1.1"
-pyyaml = ">=6.0"
-
-[tool.poetry.dev-dependencies]
-pytest-cov = ">=4.0"
-pytest = ">=7.0"
-pylint = ">=2.17"
-pytest-assume = ">=2.4"
-
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hdfdict"
+version = "0.5.0"
+description = "Helps h5py to load and dump dictionaries containing types supported by h5py."
+authors = [{ name = "Siegfried Gündert", email = "siegfried.guendert@googlemail.com" }]
+requires-python = "~=3.8"
+readme = "README.md"
+license = "MIT"
+dependencies = [
+    "h5py-wrapper~=1.1",
+    "pyyaml>=6.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/SiggiGue/hdfdict"
+Repository = "https://github.com/SiggiGue/hdfdict"
+
+[dependency-groups]
+dev = [
+    "pytest-cov>=4.0",
+    "pytest>=7.0",
+    "pylint>=2.17",
+    "pytest-assume>=2.4",
+]
